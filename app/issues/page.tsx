@@ -22,7 +22,7 @@ const IssuesPage = async () => {
               Status
             </Table.ColumnHeaderCell>
             <Table.ColumnHeaderCell className="hidden md:table-cell">
-              created
+              Created
             </Table.ColumnHeaderCell>
           </Table.Row>
         </Table.Header>
