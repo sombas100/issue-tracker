@@ -21,6 +21,6 @@ export const patchIssueSchema = z.object({
     .min(1, 'AssignedToUserId is required. ')
     .max(255)
     .optional()
-    .nullable()
+    .nullable(),
 });
 
