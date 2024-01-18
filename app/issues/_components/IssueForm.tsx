@@ -1,17 +1,22 @@
 "use client";
-import axios from "axios";
-import { Callout, Text, TextField, TextFieldInput } from "@radix-ui/themes";
-import SimpleMDE from "react-simplemde-editor";
-import "easymde/dist/easymde.min.css";
+
+import { Button, Callout, Text, TextField } from "@radix-ui/themes";
+import dynamic from "next/dynamic";
 import { useForm, Controller } from "react-hook-form";
-import React, { useState } from "react";
-import { Button } from "@radix-ui/themes";
+import axios from "axios";
+import "easymde/dist/easymde.min.css";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { issueSchema } from "@/app/validationSchemas";
 import { z } from "zod";
+import ErrorMessage from "@/app/components/ErrorMessage";
 import Spinner from "@/app/components/Spinner";
 import { Issue } from "@prisma/client";
+
+const SimpleMDE = dynamic(() => import("react-simplemde-editor"), {
+  ssr: false,
+});
 
 type IssueFormData = z.infer<typeof issueSchema>;
 
@@ -25,19 +30,17 @@ const IssueForm = ({ issue }: { issue?: Issue }) => {
   } = useForm<IssueFormData>({
     resolver: zodResolver(issueSchema),
   });
-  const [error, SetError] = useState("");
-  const [isSubmitting, SetSubmitting] = useState(false);
+  const [error, setError] = useState("");
+  const [isSubmitting, setSubmitting] = useState(false);
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      SetSubmitting(true);
-      if (issue) await axios.patch("/api/issues/" + issue.id, data);
-      else await axios.post("/api/issues", data);
+      setSubmitting(true);
+      await axios.post("/api/issues", data);
       router.push("/issues");
-      router.refresh();
     } catch (error) {
-      SetSubmitting(false);
-      SetError("An unexpected error has occured.");
+      setSubmitting(false);
+      setError("An unexpected error occurred.");
     }
   });
 
@@ -50,17 +53,13 @@ const IssueForm = ({ issue }: { issue?: Issue }) => {
       )}
       <form className="space-y-3" onSubmit={onSubmit}>
         <TextField.Root>
-          <TextFieldInput
+          <TextField.Input
             defaultValue={issue?.title}
             placeholder="Title"
             {...register("title")}
           />
         </TextField.Root>
-
-        <Text color="red" as="p">
-          {errors.title?.message}
-        </Text>
-
+        <ErrorMessage>{errors.title?.message}</ErrorMessage>
         <Controller
           name="description"
           control={control}
@@ -69,14 +68,9 @@ const IssueForm = ({ issue }: { issue?: Issue }) => {
             <SimpleMDE placeholder="Description" {...field} />
           )}
         />
-
-        <Text color="red" as="p">
-          {errors.description?.message}
-        </Text>
-
+        <ErrorMessage>{errors.description?.message}</ErrorMessage>
         <Button disabled={isSubmitting}>
-          {issue ? "Update Issue" : "Submit New Issue"}
-          {isSubmitting && <Spinner />}
+          Submit New Issue {isSubmitting && <Spinner />}
         </Button>
       </form>
     </div>
