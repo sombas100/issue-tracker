@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
+import Skeleton from "react-loading-skeleton";
 
 const AssigneeSelect = ({ issue }: { issue: Issue }) => {
   const {
@@ -19,13 +20,14 @@ const AssigneeSelect = ({ issue }: { issue: Issue }) => {
     retry: 3,
   });
 
-  if (isLoading) return <p>Loading...</p>;
+  if (isLoading) return <Skeleton />;
 
   if (error) return null;
 
   return (
     <>
       <Select.Root
+        defaultValue={issue.assignedToUserId || ""}
         onValueChange={async (userId) => {
           await axios
             .patch("/api/issues" + issue.id, {

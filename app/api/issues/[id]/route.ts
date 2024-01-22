@@ -41,7 +41,7 @@ import authOptions from "../../auth/authOptions";
             title, 
             description, 
             status,
-            
+            assignedToUserId,
             
         },
     })
